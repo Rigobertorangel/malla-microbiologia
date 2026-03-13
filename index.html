@@ -1,0 +1,468 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+<title>Malla Microbiología</title>
+
+<style>
+
+*{box-sizing:border-box}
+
+body{
+font-family:"Nunito",Arial;
+background-image:url("fondo-pc.jpg");
+background-size:cover;
+background-position:center;
+background-attachment:fixed;
+margin:0;
+padding:20px;
+transition:0.3s;
+}
+@media (max-width:700px){
+
+body{
+background-image:url("fondo-cel.jpg");
+background-size:cover;
+background-position:center;
+background-attachment:scroll;
+}
+}
+/* MODO OSCURO */
+
+body.dark{
+background-image:url("/fondo-pc-dark.png");
+background-size:cover;
+background-position:center;
+background-attachment:fixed;
+color:#ebebeb;
+}
+
+@media (max-width:700px){
+body.dark{
+background-image:url("/fondo-cel-dark.jpg");
+}
+}
+
+body.dark .semestre{
+background:#0e004a;
+}
+
+body.dark .card{
+background:#55b9c6;
+color:rgb(0, 0, 0);
+}
+
+body.dark .bloqueada{
+background:#efc9ec;
+color:rgb(0, 0, 0);
+}
+
+body.dark .progress-bar{
+background:#cc78ed;
+}
+body.dark .card.aprobada{
+background:#e15cf8;
+color:rgb(0, 0, 0);
+}
+
+/* HEADER */
+
+h1{
+text-align:center;
+color:#2e7d32;
+margin-bottom:10px;
+}
+
+body.dark h1{
+color:#81c784;
+}
+
+/* BOTONES */
+
+.controls{
+text-align:center;
+margin-bottom:15px;
+}
+
+button{
+padding:8px 14px;
+margin:4px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.reset{
+background:#ef5350;
+color:white;
+}
+
+.darkmode{
+background:#424242;
+color:white;
+}
+
+/* CINNAMOROLL */
+
+.cinna{
+text-align:center;
+font-size:22px;
+margin-bottom:10px;
+}
+
+/* PROGRESS */
+
+.progress-container{
+max-width:800px;
+margin:auto;
+margin-bottom:25px;
+}
+
+.progress-text{
+text-align:center;
+font-size:14px;
+margin-bottom:5px;
+}
+
+.progress-bar{
+height:18px;
+background:#c8e6c9;
+border-radius:20px;
+overflow:hidden;
+}
+
+.progress-fill{
+height:100%;
+background:#2e7d32;
+width:0%;
+transition:0.4s;
+}
+
+/* GRID */
+
+.container{
+display:grid;
+grid-template-columns:repeat(4,minmax(220px,1fr));
+gap:20px;
+max-width:1300px;
+margin:auto;
+}
+
+@media (max-width:900px){
+.container{grid-template-columns:repeat(2,1fr)}
+}
+
+@media (max-width:500px){
+.container{grid-template-columns:1fr}
+}
+
+/* SEMESTRES */
+
+.semestre{
+background:#d7f2df;
+border-radius:18px;
+padding:15px;
+box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+
+.semestre h2{
+text-align:center;
+font-size:16px;
+margin-bottom:15px;
+}
+
+/* CARDS */
+
+.card{
+background:white;
+border-radius:14px;
+padding:12px;
+margin-bottom:10px;
+text-align:center;
+cursor:pointer;
+transition:0.25s;
+box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+
+.card:hover{
+transform:translateY(-3px);
+}
+
+.codigo{
+font-size:11px;
+opacity:0.6;
+}
+
+.icon{
+font-size:18px;
+margin-bottom:4px;
+}
+
+/* ESTADOS */
+
+.aprobada{
+background:#2e7d32;
+color:white;
+}
+
+.desbloquea{
+background:#fff59d;
+}
+
+.bloqueada{
+background:#eeeeee;
+color:#888;
+cursor:not-allowed;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="cinna">☁️૮ ˶ᵔ ᵕ ᵔ˶ ა☁️</div>
+
+<h1>Malla Interactiva Microbiología</h1>
+
+<div class="controls">
+<button class="darkmode" onclick="toggleDark()">🌙 Modo Oscuro</button>
+<button class="reset" onclick="resetear()">🔄 Reiniciar progreso</button>
+</div>
+
+<div class="progress-container">
+<div class="progress-text" id="progressText"></div>
+<div class="progress-bar">
+<div class="progress-fill" id="progressFill"></div>
+</div>
+</div>
+
+<div class="container" id="malla"></div>
+
+<script>
+
+/* ICONOS */
+
+function icono(nombre){
+
+nombre=nombre.toLowerCase()
+
+if(nombre.includes("bio")) return "🧬"
+if(nombre.includes("química")) return "⚗️"
+if(nombre.includes("matem")) return "📐"
+if(nombre.includes("física")) return "🧲"
+if(nombre.includes("micro")) return "🦠"
+if(nombre.includes("parasit")) return "🪱"
+if(nombre.includes("virolog")) return "🧫"
+if(nombre.includes("estad")) return "📊"
+if(nombre.includes("inmun")) return "💉"
+
+return "🔬"
+}
+
+/* MATERIAS */
+
+const materias=[
+
+{codigo:"156001",nombre:"Biología General",sem:1,req:[]},
+{codigo:"153002",nombre:"Cátedra Faria",sem:1,req:[]},
+{codigo:"162003",nombre:"Habilidades Comunicativas",sem:1,req:[]},
+{codigo:"156005",nombre:"Laboratorio Biología General",sem:1,req:[]},
+{codigo:"156006",nombre:"Laboratorio Química General",sem:1,req:[]},
+{codigo:"157017",nombre:"Matemáticas I",sem:1,req:[]},
+{codigo:"156009",nombre:"Química General",sem:1,req:[]},
+
+{codigo:"158204",nombre:"Citología Microbiana",sem:2,req:["156001","156005","156006","156009"]},
+{codigo:"157018",nombre:"Matemáticas II",sem:2,req:["157017"]},
+{codigo:"156010",nombre:"Química Orgánica",sem:2,req:["156006","156009"]},
+{codigo:"158227",nombre:"Microbiología Básica",sem:2,req:["156001","156005","156006","156009"]},
+
+{codigo:"157013",nombre:"Física para las Ciencias de la Vida",sem:3,req:["157018"]},
+{codigo:"158208",nombre:"Micología",sem:3,req:["158204","158227"]},
+{codigo:"156007",nombre:"Química Analítica",sem:3,req:["156010"]},
+{codigo:"156319",nombre:"Bioquímica Microbiana I",sem:3,req:["156010"]},
+{codigo:"158241",nombre:"Parasitología General",sem:3,req:["158204","158227"]},
+
+{codigo:"156268",nombre:"Técnicas Análisis Instrumental",sem:4,req:["156007","156319"]},
+{codigo:"158216",nombre:"Toxicología de Alimentos",sem:4,req:["158208","158241"]},
+{codigo:"157344",nombre:"Bioestadística I",sem:4,req:["157018"]},
+{codigo:"156320",nombre:"Bioquímica Microbiana II",sem:4,req:["156007","156319"]},
+{codigo:"156321",nombre:"Fundamentos de Fisicoquímica",sem:4,req:["157013"]},
+
+{codigo:"150001",nombre:"Electiva Sociohumanística I",sem:5,req:[]},
+{codigo:"158002",nombre:"Microbiología de Alimentos",sem:5,req:["158216"]},
+{codigo:"165231",nombre:"Procesos Industriales en Alimentos",sem:5,req:["156321","158216"]},
+{codigo:"157345",nombre:"Bioestadística II",sem:5,req:["157344"]},
+{codigo:"158228",nombre:"Genética Básica y Microbiana",sem:5,req:["156320","157344"]},
+
+{codigo:"158201",nombre:"Aseguramiento de la Calidad",sem:6,req:["157345","158002"]},
+{codigo:"164004",nombre:"Educación Ambiental",sem:6,req:[]},
+{codigo:"150002",nombre:"Electiva Sociohumanística II",sem:6,req:["150001"]},
+{codigo:"168232",nombre:"Higiene y Seguridad Industrial",sem:6,req:["165231"]},
+{codigo:"158229",nombre:"Biología Molecular",sem:6,req:["158228"]},
+{codigo:"158230",nombre:"Diseño Experimental Biológico",sem:6,req:["157345"]},
+
+{codigo:"158207",nombre:"Inmunología",sem:7,req:["158229"]},
+{codigo:"158004",nombre:"Microbiología Industrial",sem:7,req:["158229","165231"]},
+{codigo:"158231",nombre:"Microbiología Agua, Suelo y Aire",sem:7,req:["158201","158229"]},
+{codigo:"158232",nombre:"Microbiología de Cereales, Frutas y Hortalizas",sem:7,req:["158201"]},
+{codigo:"158233",nombre:"Seminario de Problemas Microbiológicos",sem:7,req:["158230"]},
+
+{codigo:"158101",nombre:"Biotecnología I",sem:8,req:["158004","158231"]},
+{codigo:"158205",nombre:"Electiva de Profundización I",sem:8,req:[]},
+{codigo:"158212",nombre:"Microbiología de Leches",sem:8,req:["158232"]},
+{codigo:"158218",nombre:"Virología",sem:8,req:["158207"]},
+
+{codigo:"158202",nombre:"Biotecnología II",sem:9,req:["158101"]},
+{codigo:"150902",nombre:"Desarrollo del Espíritu Emprendedor",sem:9,req:[]},
+{codigo:"158206",nombre:"Electiva de Profundización II",sem:9,req:["158205"]},
+{codigo:"164010",nombre:"Ética",sem:9,req:[]},
+{codigo:"158211",nombre:"Microbiología de Carnes y Pescados",sem:9,req:["158212"]},
+
+{codigo:"167281",nombre:"Informática Básica (Extraplan)",sem:10,req:[]},
+{codigo:"158217",nombre:"Trabajo de Grado",sem:10,req:[]}
+
+]
+
+let aprobadas=new Set(JSON.parse(localStorage.getItem("materiasAprobadas")||"[]"))
+
+const malla=document.getElementById("malla")
+
+function crearMalla(){
+
+let semestres=[...new Set(materias.map(m=>m.sem))]
+
+semestres.forEach(s=>{
+
+let col=document.createElement("div")
+col.className="semestre"
+
+let titulo=document.createElement("h2")
+titulo.textContent=s+"° Semestre"
+
+col.appendChild(titulo)
+
+materias.filter(m=>m.sem==s).forEach(mat=>{
+
+let card=document.createElement("div")
+card.className="card"
+card.dataset.codigo=mat.codigo
+
+card.innerHTML=`
+<div class="icon">${icono(mat.nombre)}</div>
+<div class="codigo">${mat.codigo}</div>
+${mat.nombre}
+`
+
+card.onclick=()=>toggleMateria(mat.codigo)
+
+col.appendChild(card)
+
+})
+
+malla.appendChild(col)
+
+})
+
+}
+
+function toggleMateria(codigo){
+
+let materia=materias.find(m=>m.codigo==codigo)
+
+let cumple=materia.req.every(r=>aprobadas.has(r))
+
+if(!cumple) return
+
+if(aprobadas.has(codigo)){
+aprobadas.delete(codigo)
+}else{
+aprobadas.add(codigo)
+}
+
+localStorage.setItem("materiasAprobadas",JSON.stringify([...aprobadas]))
+
+actualizarUI()
+}
+
+function actualizarUI(){
+
+let cards=document.querySelectorAll(".card")
+
+cards.forEach(card=>{
+
+let cod=card.dataset.codigo
+let mat=materias.find(m=>m.codigo==cod)
+
+card.classList.remove("aprobada","bloqueada","desbloquea")
+
+if(aprobadas.has(cod)){
+card.classList.add("aprobada")
+return
+}
+
+let cumple=mat.req.every(r=>aprobadas.has(r))
+
+if(mat.req.length>0 && !cumple){
+card.classList.add("bloqueada")
+}else if(cumple){
+card.classList.add("desbloquea")
+}
+
+})
+
+actualizarProgreso()
+}
+
+function actualizarProgreso(){
+
+let total=materias.length
+let hechas=aprobadas.size
+let porcentaje=Math.round((hechas/total)*100)
+
+document.getElementById("progressFill").style.width=porcentaje+"%"
+document.getElementById("progressText").innerText=`${hechas} / ${total} materias completadas (${porcentaje}%)`
+
+}
+
+/* RESET */
+
+function resetear(){
+
+if(confirm("¿Seguro que quieres borrar todo el progreso?")){
+
+aprobadas.clear()
+localStorage.removeItem("materiasAprobadas")
+
+actualizarUI()
+
+}
+
+}
+
+/* DARK MODE */
+
+function toggleDark(){
+
+document.body.classList.toggle("dark")
+
+localStorage.setItem("darkmode",document.body.classList.contains("dark"))
+
+}
+
+if(localStorage.getItem("darkmode")==="true"){
+document.body.classList.add("dark")
+}
+
+crearMalla()
+actualizarUI()
+
+</script>
+
+</body>
+</html>
